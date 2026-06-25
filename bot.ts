@@ -71,7 +71,7 @@ const services: Record<ServiceKey, Service> = {
     key: 'vip',
     label: 'VIP',
     path: '/vip',
-    intro: 'VIP section select ho gaya.\n\nMini app open karne ke liye button press karein, ya details/plans dekh lein.',
+    intro: 'VIP section selected.\n\nTap the button to open the mini app, or view details and plans below.',
     detailsKey: 'vip_details',
     plansKey: 'vip_plans'
   },
@@ -79,7 +79,7 @@ const services: Record<ServiceKey, Service> = {
     key: 'mentorship',
     label: 'Mentorship',
     path: '/mentorship',
-    intro: 'Mentorship section select ho gaya.\n\nMini app open karne ke liye button press karein, ya details/plans dekh lein.',
+    intro: 'Mentorship section selected.\n\nTap the button to open the mini app, or view details and plans below.',
     detailsKey: 'mentorship_details',
     plansKey: 'mentorship_plans'
   },
@@ -87,7 +87,7 @@ const services: Record<ServiceKey, Service> = {
     key: 'funded',
     label: 'Funded',
     path: '/funded',
-    intro: 'Funded section select ho gaya.\n\nMini app open karne ke liye button press karein, ya details/plans dekh lein.',
+    intro: 'Funded section selected.\n\nTap the button to open the mini app, or view details and plans below.',
     detailsKey: 'funded_details',
     plansKey: 'funded_plans'
   },
@@ -95,7 +95,7 @@ const services: Record<ServiceKey, Service> = {
     key: 'account',
     label: 'Account Management',
     path: '/account-management',
-    intro: 'Account Management section select ho gaya.\n\nMini app open karne ke liye button press karein, ya details/plans dekh lein.',
+    intro: 'Account Management section selected.\n\nTap the button to open the mini app, or view details and plans below.',
     detailsKey: 'account_details',
     plansKey: 'account_plans'
   },
@@ -103,14 +103,14 @@ const services: Record<ServiceKey, Service> = {
     key: 'referral',
     label: 'Referral',
     path: '/referral',
-    intro: 'Referral section select ho gaya.\n\nMini app open karne ke liye button press karein ya details dekh lein.',
+    intro: 'Referral section selected.\n\nTap the button to open the mini app, or view the details below.',
     detailsKey: 'referral_details'
   },
   payment: {
     key: 'payment',
     label: 'Payment Method',
     path: '/payment-method',
-    intro: 'Payment Method section select ho gaya.\n\nMini app open karne ke liye button press karein ya payment details dekh lein.',
+    intro: 'Payment Method section selected.\n\nTap the button to open the mini app, or view the payment details below.',
     detailsKey: 'payment_details'
   }
 };
@@ -167,7 +167,7 @@ async function sendMainMenu(ctx: Context) {
 
   await replyOrEdit(
     ctx,
-    'Assalamualaikum!\n\nWelcome to SMC ICT bot. Please select a service from the menu below:',
+    'Welcome to the SMC ICT bot.\n\nPlease select a service from the menu below:',
     mainMenu
   );
 }
@@ -203,25 +203,25 @@ async function sendServiceMenu(ctx: Context, key: ServiceKey) {
 
 const detailText: Record<DetailKey, string> = {
   vip_details:
-    'VIP Details\n\n- Premium signals\n- Market updates\n- Private access\n- Fast support\n\nMini app ke liye VIP menu se Open Mini App press karein.',
+    'VIP Details\n\n- Premium signals\n- Market updates\n- Private access\n- Priority support\n\nTo access the mini app, select Open Mini App from the VIP menu.',
   vip_plans:
-    'VIP Plans / Pricing\n\n- Monthly: $75\n- Yearly: $170\n- Lifetime: $300\n\nPlan confirm karne ke liye admin se rabta karein.\n\nAdmin: @xauforexadmin',
+    'VIP Plans / Pricing\n\n- Monthly: $75\n- Yearly: $170\n- Lifetime: $300\n\nPlease contact the admin to confirm your plan.\n\nAdmin: @xauforexadmin',
   funded_details:
-    'Funded Details\n\n- Funded account guidance\n- Challenge support\n- Risk management support\n\nMini app ke liye Funded menu se Open Mini App press karein.',
+    'Funded Details\n\n- Funded account guidance\n- Challenge support\n- Risk management support\n\nTo access the mini app, select Open Mini App from the Funded menu.',
   funded_plans:
-    'Funded Plans / Pricing\n\nAvailable funded plans confirm karne ke liye admin se rabta karein.\n\nAdmin: @xauforexadmin',
+    'Funded Plans / Pricing\n\nPlease contact the admin to confirm the currently available funded plans.\n\nAdmin: @xauforexadmin',
   account_details:
     'Account Management Details\n\n- Risk-managed trading\n- Weekly progress updates\n- Profit sharing discussion with admin',
   account_plans:
-    'Account Management Plans\n\nCapital aur risk profile ke hisaab se plan set hota hai.\n\nAdmin: @xauforexadmin',
+    'Account Management Plans\n\nPlans are customized based on your capital and risk profile.\n\nAdmin: @xauforexadmin',
   mentorship_details:
     'Personal Mentorship Details\n\n- One-to-one guidance\n- Trading concepts\n- Live market support\n- Practice plan',
   mentorship_plans:
-    'Personal Mentorship Plans\n\nBatch aur one-to-one slots ke liye admin se availability confirm karein.\n\nAdmin: @xauforexadmin',
+    'Personal Mentorship Plans\n\nPlease contact the admin to confirm availability for batch and one-to-one mentorship slots.\n\nAdmin: @xauforexadmin',
   referral_details:
-    'Referral Details\n\nReferral link aur bonus details ke liye mini app open karein ya admin se rabta karein.\n\nAdmin: @xauforexadmin',
+    'Referral Details\n\nOpen the mini app or contact the admin for your referral link and bonus details.\n\nAdmin: @xauforexadmin',
   payment_details:
-    'Payment Method Details\n\nPayment details mini app me available hain. Payment confirmation ke liye admin se rabta karein.\n\nAdmin: @xauforexadmin'
+    'Payment Method Details\n\nPayment details are available in the mini app. Please contact the admin to confirm your payment.\n\nAdmin: @xauforexadmin'
 };
 
 bot.start(sendMainMenu);
@@ -235,7 +235,7 @@ bot.command('payment', sendPaymentMenu);
 
 bot.command('broadcast', async (ctx) => {
   if (!adminId || ctx.from.id !== adminId) {
-    return ctx.reply('Aap admin nahi ho.');
+    return ctx.reply('You are not authorized to use this command.');
   }
 
   const text = ctx.message.text.replace(/^\/broadcast\s*/i, '').trim();
