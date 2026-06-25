@@ -167,7 +167,7 @@ async function sendMainMenu(ctx: Context) {
 
   await replyOrEdit(
     ctx,
-    'Assalamualaikum!\n\nWelcome to SMC ICT bot. Neeche menu se apni service select karein:',
+    'Assalamualaikum!\n\nWelcome to SMC ICT bot. /n/n Please select a service from the menu below:',
     mainMenu
   );
 }
