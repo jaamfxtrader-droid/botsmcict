@@ -35,6 +35,7 @@ const adminId = Number(process.env.ADMIN_ID || '0');
 const miniAppUrl = (process.env.MINI_APP_URL || 'https://smcict.com').replace(/\/$/, '');
 const adminUsername = (process.env.ADMIN_USERNAME || 'xauforexadmin').replace(/^@/, '');
 const freeChannelUrl = process.env.FREE_CHANNEL_URL || 'https://t.me/XAUforex_trader';
+const showFreeChannel = process.env.SHOW_FREE_CHANNEL === 'true';
 const subscribersFile = path.join(process.cwd(), 'subscribers.json');
 
 if (!token) {
@@ -75,52 +76,48 @@ const bot = new Telegraf<Context>(token);
 const services: Record<ServiceKey, Service> = {
   vip: {
     key: 'vip',
-    label: 'Market Education',
+    label: 'Gold Market Basics',
     path: '/vip',
     intro:
-      'Market Education selected.\n\nYou can review the service details, pricing, risk notice, and website before contacting support. We do not promise profits or give personal financial advice.',
-    detailsKey: 'vip_details',
-    plansKey: 'vip_plans'
+      'Gold Market Basics selected.\n\nThis section shares general learning material about gold price movement, chart reading, and market awareness.',
+    detailsKey: 'vip_details'
   },
   mentorship: {
     key: 'mentorship',
-    label: 'Mentorship',
+    label: 'Chart Reading',
     path: '/mentorship',
     intro:
-      'Mentorship selected.\n\nReview the learning format and availability below. Trading carries risk, and results depend on each person.',
-    detailsKey: 'mentorship_details',
-    plansKey: 'mentorship_plans'
+      'Chart Reading selected.\n\nLearn how to read basic chart structure, price zones, and daily market context for educational purposes.',
+    detailsKey: 'mentorship_details'
   },
   funded: {
     key: 'funded',
-    label: 'Evaluation Guidance',
+    label: 'Market News',
     path: '/funded',
     intro:
-      'Evaluation Guidance selected.\n\nThis section explains education and risk-management support for evaluation accounts. We are not a broker or prop firm.',
-    detailsKey: 'funded_details',
-    plansKey: 'funded_plans'
+      'Market News selected.\n\nThis section highlights general economic events and news topics that may affect gold prices.',
+    detailsKey: 'funded_details'
   },
   account: {
     key: 'account',
-    label: 'Account Guidance',
+    label: 'Learning Resources',
     path: '/account-management',
     intro:
-      'Account Guidance selected.\n\nReview the service information first. We do not guarantee profit, and users should only trade with risk they understand.',
-    detailsKey: 'account_details',
-    plansKey: 'account_plans'
+      'Learning Resources selected.\n\nBrowse general education topics for market awareness, chart study, and responsible research habits.',
+    detailsKey: 'account_details'
   },
   referral: {
     key: 'referral',
-    label: 'Referral',
+    label: 'Community Channel',
     path: '/referral',
-    intro: 'Referral selected.\n\nReview the referral information and terms before joining.',
+    intro: 'Community Channel selected.\n\nJoin the free educational channel for general gold market updates and chart commentary.',
     detailsKey: 'referral_details'
   },
   payment: {
     key: 'payment',
-    label: 'Payment Method',
+    label: 'Contact',
     path: '/payment-method',
-    intro: 'Payment Method selected.\n\nAlways confirm payment details with official support before sending funds.',
+    intro: 'Contact selected.\n\nUse the official support link for questions about this educational bot.',
     detailsKey: 'payment_details'
   },
   policies: {
@@ -140,20 +137,24 @@ const riskButton = Markup.button.callback('Risk Notice', 'risk_details');
 const privacyButton = Markup.button.callback('Privacy', 'privacy_details');
 const termsButton = Markup.button.callback('Terms', 'terms_details');
 
-const mainMenu = Markup.inlineKeyboard([
-  [Markup.button.callback('Market Education', 'menu_vip')],
-  [Markup.button.callback('Mentorship', 'menu_mentorship')],
-  [Markup.button.callback('Evaluation Guidance', 'menu_funded')],
-  [Markup.button.callback('Account Guidance', 'menu_account')],
-  [Markup.button.callback('Referral', 'menu_referral')],
-  [Markup.button.callback('Payment Method', 'menu_payment')],
-  [freeChannelButton],
+const mainMenuRows: any[][] = [
+  [Markup.button.callback('Gold Market Basics', 'menu_vip')],
+  [Markup.button.callback('Chart Reading', 'menu_mentorship')],
+  [Markup.button.callback('Market News', 'menu_funded')],
+  [Markup.button.callback('Learning Resources', 'menu_account')],
+  [Markup.button.callback('Contact', 'menu_payment')],
   [Markup.button.callback('Privacy & Terms', 'menu_policies')]
-]);
+];
+
+if (showFreeChannel) {
+  mainMenuRows.splice(4, 0, [freeChannelButton]);
+}
+
+const mainMenu = Markup.inlineKeyboard(mainMenuRows);
 const mainMenuText =
-  'Daily Gold Market Updates\n\n' +
-  'Access educational XAU/USD market analysis, technical chart reviews, trading resources, and risk-management reminders.\n\n' +
-  'This bot is for learning and market commentary only. We do not guarantee profit, manage exchange logins, or provide personal financial advice. Review the risk notice, privacy, and terms before joining any paid service.';
+  'Gold Market Education\n\n' +
+  'Access general gold market commentary, chart reading notes, educational resources, and responsible research reminders.\n\n' +
+  'This bot is for education and general market awareness only. It does not provide personal recommendations, managed services, or specific outcome promises.';
 
 function serviceUrl(pathname: string) {
   return `${miniAppUrl}${pathname}`;
@@ -161,17 +162,17 @@ function serviceUrl(pathname: string) {
 
 function serviceMenu(service: Service) {
   const rows: any[][] = [
-    [Markup.button.url('Open Website', serviceUrl(service.path))],
-    [Markup.button.webApp('Open Mini App', serviceUrl(service.path))],
     [Markup.button.callback(`${service.label} Details`, service.detailsKey)]
   ];
 
   if (service.plansKey) {
-    rows.push([Markup.button.callback(`${service.label} Plans / Pricing`, service.plansKey)]);
+    rows.push([Markup.button.callback(`${service.label} More Info`, service.plansKey)]);
   }
 
   rows.push([riskButton, privacyButton, termsButton]);
-  rows.push([freeChannelButton]);
+  if (showFreeChannel) {
+    rows.push([freeChannelButton]);
+  }
   rows.push([adminButton]);
   rows.push([backButton]);
   return Markup.inlineKeyboard(rows);
@@ -234,52 +235,53 @@ async function sendServiceMenu(ctx: Context, key: ServiceKey) {
 
 const detailText: Record<DetailKey, string> = {
   vip_details:
-    'Market Education Details\n\n- Educational market updates\n- Trade planning examples\n- Risk-management reminders\n- Community support\n\nAll content is informational only. It is not personal financial advice and does not guarantee profit.',
+    'Gold Market Basics\n\n- General gold market commentary\n- Basic chart reading notes\n- Educational price movement examples\n- Responsible research reminders\n\nThis content is for education and general awareness only. It does not provide personal recommendations.',
   vip_plans:
-    `Market Education Plans / Pricing\n\n- Monthly: $75\n- Yearly: $170\n- Lifetime: $300\n\nPlease contact support to confirm current availability and payment details.\n\nSupport: @${adminUsername}`,
+    'More Information\n\nThis bot shares general education and market awareness content only. It does not provide personal recommendations or specific outcome promises.',
   funded_details:
-    'Evaluation Guidance Details\n\n- Evaluation account education\n- Challenge preparation guidance\n- Risk-management support\n\nWe are not a broker or prop firm. Always read the rules of any third-party provider before joining.',
+    'Market News\n\n- General economic calendar awareness\n- News topics that may influence gold prices\n- Educational context for market movement\n\nThis bot does not provide buy or sell instructions.',
   funded_plans:
-    `Evaluation Guidance Plans / Pricing\n\nPlease contact support to confirm the currently available guidance options.\n\nSupport: @${adminUsername}`,
+    'More Information\n\nMarket news is shared for general awareness only. Users should do independent research and consult qualified professionals for personal decisions.',
   account_details:
-    'Account Guidance Details\n\n- Risk-management education\n- Weekly progress review\n- Strategy discussion with support\n\nNo profit is guaranteed. Please review all risks before using any trading-related service.',
+    'Learning Resources\n\n- Chart terminology\n- Market session awareness\n- Economic news basics\n- Responsible research habits\n\nThis bot does not manage user accounts, funds, passwords, or login details.',
   account_plans:
-    `Account Guidance Plans\n\nPlans are discussed based on your goals and risk profile. No plan guarantees income or profit.\n\nSupport: @${adminUsername}`,
+    'More Information\n\nThis bot does not handle user funds, private login details, or personal decision-making services.',
   mentorship_details:
-    'Personal Mentorship Details\n\n- One-to-one guidance\n- Trading concepts\n- Live market support\n- Practice plan',
+    'Chart Reading\n\n- Basic chart structure\n- Price zone observation\n- Market context notes\n- Educational chart examples\n\nExamples are for study only and are not instructions to enter any market.',
   mentorship_plans:
-    `Personal Mentorship Plans\n\nPlease contact support to confirm availability for batch and one-to-one mentorship slots.\n\nSupport: @${adminUsername}`,
+    'More Information\n\nThis section is for educational chart study only. It does not include personal recommendations or specific outcome promises.',
   referral_details:
-    `Referral Details\n\nOpen the mini app or contact support for referral information. Referral rewards, if available, are subject to current terms.\n\nSupport: @${adminUsername}`,
+    'Community Channel\n\nJoin the free educational channel for general gold market updates and chart commentary. Content is for learning and awareness only.',
   payment_details:
-    `Payment Method Details\n\nPayment details are available in the mini app. Please contact support to confirm official payment details before sending funds.\n\nSupport: @${adminUsername}`,
+    `Contact\n\nOfficial support: @${adminUsername}\nWebsite: ${miniAppUrl}\n\nThis bot does not request passwords, card PINs, wallet seed phrases, exchange logins, or banking login details.`,
   privacy_details:
     'Privacy\n\nWe collect your Telegram user ID only to send requested bot messages and admin broadcasts. We do not ask for passwords, seed phrases, card PINs, or banking login details. Contact support if you want your bot subscription removed.',
   terms_details:
-    'Terms\n\nSMC ICT provides trading education, market commentary, and related support information. Our content is not personal financial advice. Payments and access should be confirmed only through official support.',
+    'Terms\n\nThis bot provides general education, market commentary, and public information for awareness. It does not provide personal recommendations, managed services, or specific outcome promises.',
   risk_details:
-    'Risk Notice\n\nTrading forex, CFDs, crypto, and other financial markets is risky. You can lose money. Past performance, examples, screenshots, or signals do not guarantee future results. Only trade after understanding the risk.',
-  contact_details: `Contact Support\n\nOfficial Telegram support: @${adminUsername}\nWebsite: ${miniAppUrl}\n\nWe never ask for your Telegram password, exchange login, card PIN, or wallet seed phrase.`
+    'Important Notice\n\nMarket information can change quickly. Educational examples, screenshots, chart commentary, and past market movement should not be treated as future expectations. This bot does not provide personal recommendations.',
+  contact_details: `Contact Support\n\nUse the Contact Support button below for official support.\nWebsite: ${miniAppUrl}\n\nWe never ask for your Telegram password, private login details, card PIN, or wallet seed phrase.`
 };
 
 bot.start(sendMainMenu);
 bot.command('menu', sendMainMenu);
 bot.command('about', (ctx) => ctx.reply(mainMenuText, mainMenu));
-bot.command('vip', sendVipMenu);
-bot.command('mentorship', sendMentorshipMenu);
-bot.command('funded', sendFundedMenu);
-bot.command('account', sendAccountMenu);
-bot.command('referral', sendReferralMenu);
-bot.command('payment', sendPaymentMenu);
-bot.command('free', (ctx) => ctx.reply(
-  'Free Educational Channel\n\nJoin the free channel for educational XAU/USD updates and chart commentary. Content is informational only and does not guarantee profit.',
-  Markup.inlineKeyboard([[freeChannelButton], [riskButton], [backButton]])
-));
+bot.command('basics', sendVipMenu);
+bot.command('charts', sendMentorshipMenu);
+bot.command('news', sendFundedMenu);
+bot.command('resources', sendAccountMenu);
+bot.command('community', sendReferralMenu);
+bot.command('contact', (ctx) => ctx.reply(detailText.contact_details, Markup.inlineKeyboard([[adminButton], [backButton]])));
+if (showFreeChannel) {
+  bot.command('free', (ctx) => ctx.reply(
+    'Free Educational Channel\n\nJoin the free channel for general gold market updates and chart commentary. Content is for education and awareness only.',
+    Markup.inlineKeyboard([[freeChannelButton], [riskButton], [backButton]])
+  ));
+}
 bot.command('privacy', (ctx) => ctx.reply(detailText.privacy_details, Markup.inlineKeyboard([[adminButton], [backButton]])));
 bot.command('terms', (ctx) => ctx.reply(detailText.terms_details, Markup.inlineKeyboard([[adminButton], [backButton]])));
 bot.command('risk', (ctx) => ctx.reply(detailText.risk_details, Markup.inlineKeyboard([[adminButton], [backButton]])));
 bot.command('disclaimer', (ctx) => ctx.reply(detailText.risk_details, Markup.inlineKeyboard([[adminButton], [backButton]])));
-bot.command('contact', (ctx) => ctx.reply(detailText.contact_details, Markup.inlineKeyboard([[adminButton], [backButton]])));
 bot.command('help', sendMainMenu);
 
 bot.command('broadcast', async (ctx) => {
@@ -336,15 +338,24 @@ bot.catch((error) => {
   console.error('Bot error:', error);
 });
 
-bot.telegram.setMyCommands([
+const botCommands = [
   { command: 'start', description: 'Open main menu' },
-  { command: 'about', description: 'About daily gold market updates' },
-  { command: 'free', description: 'Open free educational channel' },
+  { command: 'about', description: 'About gold market education' },
+  { command: 'basics', description: 'Open gold market basics' },
+  { command: 'charts', description: 'Open chart reading notes' },
+  { command: 'news', description: 'Open market news notes' },
+  { command: 'resources', description: 'Open learning resources' },
   { command: 'privacy', description: 'View privacy information' },
   { command: 'terms', description: 'View terms' },
-  { command: 'risk', description: 'View risk notice' },
+  { command: 'risk', description: 'View important notice' },
   { command: 'contact', description: 'Contact official support' }
-]).catch((error) => {
+];
+
+if (showFreeChannel) {
+  botCommands.splice(6, 0, { command: 'free', description: 'Open free educational channel' });
+}
+
+bot.telegram.setMyCommands(botCommands).catch((error) => {
   console.error('Failed to set bot commands:', error);
 });
 
